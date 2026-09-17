@@ -599,7 +599,7 @@ static void xmt_resolve_od_links(GF_XMTParser *parser)
 					seg = NULL;
 					if (url->url) seg = strstr(url->url, "#");
 					if (seg) {
-						sprintf(szURL, "od:%d#%s", l->od->objectDescriptorID, seg+1);
+						snprintf(szURL, sizeof(szURL), "od:%d#%s", l->od->objectDescriptorID, seg+1);
 						gf_free(url->url);
 						url->url = gf_strdup(szURL);
 					} else {
