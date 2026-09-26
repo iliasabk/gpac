@@ -684,7 +684,7 @@ static void gf_ait_destroy(GF_M2TS_AIT* ait)
 static void gf_ait_application_decode_destroy(GF_M2TS_AIT_APPLICATION_DECODE* application_decode)
 {
 
-	u32 app_desc_num,i,app_descr_index;
+	u32 app_desc_num,i,j,app_descr_index;
 
 	app_descr_index = i = 0;
 	app_desc_num = gf_list_count(application_decode->application_descriptors);
@@ -722,8 +722,8 @@ static void gf_ait_application_decode_destroy(GF_M2TS_AIT_APPLICATION_DECODE* ap
 				GF_M2TS_TRANSPORT_HTTP_SELECTOR_BYTE* Transport_http_selector_byte = (GF_M2TS_TRANSPORT_HTTP_SELECTOR_BYTE*)protocol_descriptor->selector_byte;
 				gf_free(Transport_http_selector_byte->URL_base_byte);
 				if (Transport_http_selector_byte->URL_extension_count) {
-					for (i=0; i < Transport_http_selector_byte->URL_extension_count; i++) {
-						gf_free(Transport_http_selector_byte->URL_extentions[i].URL_extension_byte);
+					for (j=0; j < Transport_http_selector_byte->URL_extension_count; j++) {
+						gf_free(Transport_http_selector_byte->URL_extentions[j].URL_extension_byte);
 					}
 					gf_free(Transport_http_selector_byte->URL_extentions);
 				}
@@ -755,9 +755,9 @@ static void gf_ait_application_decode_destroy(GF_M2TS_AIT_APPLICATION_DECODE* ap
 		{
 			GF_M2TS_APPLICATION_BOUNDARY_DESCRIPTOR* boundary_descriptor = (GF_M2TS_APPLICATION_BOUNDARY_DESCRIPTOR*)gf_list_get(application_decode->application_descriptors, 0);
 			if (boundary_descriptor->boundary_extension_count > 0) {
-				for (i=0; i<boundary_descriptor->boundary_extension_count; i++) {
-					if (boundary_descriptor->boundary_extension_info[i].boundary_extension_length > 0) {
-						gf_free(boundary_descriptor->boundary_extension_info[i].boundary_extension_byte);
+				for (j=0; j<boundary_descriptor->boundary_extension_count; j++) {
+					if (boundary_descriptor->boundary_extension_info[j].boundary_extension_length > 0) {
+						gf_free(boundary_descriptor->boundary_extension_info[j].boundary_extension_byte);
 					}
 				}
 				gf_free(boundary_descriptor->boundary_extension_info);
@@ -805,5 +805,4 @@ void  gf_m2ts_delete_channel_application_info(GF_M2TS_CHANNEL_APPLICATION_INFO* 
 }
 
 #endif //GPAC_ENABLE_DSMCC
-
 
