@@ -582,6 +582,7 @@ static void gf_m2ts_process_ait(GF_M2TS_Demuxer *ts, GF_M2TS_AIT* ait) {
 		if(dsmcc_overlord && !gf_m2ts_is_dmscc_app(ChanAppInfo)) {
 			gf_dir_cleanup(dsmcc_overlord->root_dir);
 			gf_rmdir(dsmcc_overlord->root_dir);
+			gf_list_del_item(ts->dsmcc_controler, dsmcc_overlord);
 			gf_m2ts_delete_dsmcc_overlord(dsmcc_overlord);
 
 		}
