@@ -227,6 +227,9 @@ typedef struct __tsmx_pid
 	u32 last_temi_url;
 	u8 *af_data;
 	u32 af_data_alloc;
+
+	u8 *dsi;
+	u32 dsi_alloc;
 	GF_BitStream *temi_af_bs;
 
 	Bool rewrite_odf;
@@ -1006,7 +1009,8 @@ static Bool tsmux_setup_esi(GF_TSMuxCtx *ctx, GF_M2TS_Mux_Program *prog, M2Pid *
 	else if (!bckp.decoder_config && tspid->esi.decoder_config) changed = GF_TRUE;
 	else if (bckp.decoder_config && tspid->esi.decoder_config &&
 		( (bckp.decoder_config_size != tspid->esi.decoder_config_size)
-		|| memcmp(bckp.decoder_config, tspid->esi.decoder_config, bckp.decoder_config_size))
+		|| !tspid->dsi
+		|| memcmp(tspid->dsi, tspid->esi.decoder_config, bckp.decoder_config_size))
 	)
 		changed = GF_TRUE;
 	else if (memcmp(bckp.dv_info, tspid->esi.dv_info, 24))
@@ -1083,6 +1087,21 @@ static Bool tsmux_setup_esi(GF_TSMuxCtx *ctx, GF_M2TS_Mux_Program *prog, M2Pid *
 	if (m2ts_ra != tspid->esi.ra_code) {
 		changed = GF_TRUE;
 		tspid->esi.ra_code = m2ts_ra;
+	}
+
+	//decoder_config is a pointer into the PID properties which may be reset on reconfigure, keep a private copy
+	if (tspid->esi.decoder_config && tspid->esi.decoder_config_size) {
+		if (tspid->dsi_alloc < tspid->esi.decoder_config_size) {
+			u8 *dsi = (u8 *) gf_realloc(tspid->dsi, tspid->esi.decoder_config_size);
+			if (dsi) {
+				tspid->dsi = dsi;
+				tspid->dsi_alloc = tspid->esi.decoder_config_size;
+			}
+		}
+		if (tspid->dsi && (tspid->dsi_alloc >= tspid->esi.decoder_config_size)) {
+			memcpy(tspid->dsi, tspid->esi.decoder_config, tspid->esi.decoder_config_size);
+			tspid->esi.decoder_config = tspid->dsi;
+		}
 	}
 
 	return changed;
@@ -1236,6 +1255,7 @@ static void tsmux_del_stream(M2Pid *tspid)
 	if (tspid->esi.sl_config) gf_free(tspid->esi.sl_config);
 	if (tspid->pck_data_buf) gf_free(tspid->pck_data_buf);
 	if (tspid->esi.gpac_meta_dsi) gf_free(tspid->esi.gpac_meta_dsi);
+	if (tspid->dsi) gf_free(tspid->dsi);
 	gf_free(tspid);
 }
 
